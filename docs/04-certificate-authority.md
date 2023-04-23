@@ -96,7 +96,19 @@ cfssl gencert \
 
 service-account-key.pem, service-account.pem
   
+### Transfer the generated certs to controller and worker nodes
 
+For sake of simplicity, transferred all files to all nodes (though not needed. Follow original tutorial instructions to see which files needed on which nodes)
+ 
+sudo apt install unzip
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+unzip awscliv2.zip
+sudo ./aws/install
+aws s3 cp <S3_URL_OF_CERTS_FILE> .
+unzip certs.zip
+  
+  
+  
 # Provisioning a CA and Generating TLS Certificates
 
 In this lab you will provision a [PKI Infrastructure](https://en.wikipedia.org/wiki/Public_key_infrastructure) using CloudFlare's PKI toolkit, [cfssl](https://github.com/cloudflare/cfssl), then use it to bootstrap a Certificate Authority, and generate TLS certificates for the following components: etcd, kube-apiserver, kube-controller-manager, kube-scheduler, kubelet, and kube-proxy.
