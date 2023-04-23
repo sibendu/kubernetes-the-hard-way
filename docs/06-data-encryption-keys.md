@@ -1,3 +1,7 @@
+# SD - AWS
+
+Created file manually on each controller node (same Encryption Key)
+
 # Generating the Data Encryption Config and Key
 
 Kubernetes stores a variety of data including cluster state, application configurations, and secrets. Kubernetes supports the ability to [encrypt](https://kubernetes.io/docs/tasks/administer-cluster/encrypt-data) cluster data at rest.
