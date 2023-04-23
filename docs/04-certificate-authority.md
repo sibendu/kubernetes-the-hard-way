@@ -1,3 +1,102 @@
+# SD - AWS
+
+## Generate the CA configuration file, certificate, and private key
+cfssl gencert -initca ca-csr.json | cfssljson -bare ca
+
+ca-key.pem, ca.pem
+
+## Generate the admin client certificate and private key 
+cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -profile=kubernetes admin-csr.json | cfssljson -bare admin
+
+admin-key.pem, admin.pem
+
+
+## Generate a certificate and private key for each Kubernetes worker node
+
+First, note instance ids for worker nodes from EC2 console
+
+worker_ids='i-070bbd444c1128655 i-0d3b69952e7718f41'
+
+for instance_id in ${worker_ids}; do
+
+EXTERNAL_IP=$(aws ec2 describe-instances --filters "Name=instance-id,Values=${instance_id}" --query 'Reservations[*].Instances[*].[PublicIpAddress]' --output text)
+INTERNAL_IP=$(aws ec2 describe-instances --filters "Name=instance-id,Values=${instance_id}" --query 'Reservations[*].Instances[*].[PrivateIpAddress]' --output text)
+instance=$(aws ec2 describe-instances --filters "Name=instance-id,Values=${instance_id}" --query 'Reservations[*].Instances[*].Tags[0].Value' --output text)
+
+echo $EXTERNAL_IP $INTERNAL_IP $instance
+
+cfssl gencert \
+  -ca=ca.pem \
+  -ca-key=ca-key.pem \
+  -config=ca-config.json \
+  -hostname=${instance},${EXTERNAL_IP},${INTERNAL_IP} \
+  -profile=kubernetes \
+  ${instance}-csr.json | cfssljson -bare ${instance}
+
+done
+
+This will generate files: worker-0-key.pem, worker-0.pem, worker-1-key.pem, worker-1.pem
+
+
+
+## Generate the kube-controller-manager client certificate and private key
+cfssl gencert \
+  -ca=ca.pem \
+  -ca-key=ca-key.pem \
+  -config=ca-config.json \
+  -profile=kubernetes \
+  kube-controller-manager-csr.json | cfssljson -bare kube-controller-manager
+
+kube-controller-manager-key.pem, kube-controller-manager.pem
+
+## Generate the kube-proxy client certificate and private key
+cfssl gencert \
+  -ca=ca.pem \
+  -ca-key=ca-key.pem \
+  -config=ca-config.json \
+  -profile=kubernetes \
+  kube-proxy-csr.json | cfssljson -bare kube-proxy
+
+kube-proxy-key.pem, kube-proxy.pem
+
+## Generate the kube-scheduler client certificate and private key
+cfssl gencert \
+  -ca=ca.pem \
+  -ca-key=ca-key.pem \
+  -config=ca-config.json \
+  -profile=kubernetes \
+  kube-scheduler-csr.json | cfssljson -bare kube-scheduler
+
+kube-scheduler-key.pem, kube-scheduler.pem
+
+## Generate the Kubernetes API Server certificate and private key
+
+export KUBERNETES_PUBLIC_ADDRESS=<set the Elastic IP here>
+
+export KUBERNETES_HOSTNAMES=kubernetes,kubernetes.default,kubernetes.default.svc,kubernetes.default.svc.cluster,kubernetes.svc.cluster.local
+
+cfssl gencert \
+  -ca=ca.pem \
+  -ca-key=ca-key.pem \
+  -config=ca-config.json \
+  -hostname=10.32.0.1,10.240.0.10,10.240.0.11,10.240.0.12,${KUBERNETES_PUBLIC_ADDRESS},127.0.0.1,${KUBERNETES_HOSTNAMES} \
+  -profile=kubernetes \
+  kubernetes-csr.json | cfssljson -bare kubernetes
+
+kubernetes-key.pem, kubernetes.pem
+
+
+## Generate the service-account certificate and private key
+cfssl gencert \
+  -ca=ca.pem \
+  -ca-key=ca-key.pem \
+  -config=ca-config.json \
+  -profile=kubernetes \
+  service-account-csr.json | cfssljson -bare service-account
+
+service-account-key.pem, service-account.pem
+  
+
 # Provisioning a CA and Generating TLS Certificates
 
 In this lab you will provision a [PKI Infrastructure](https://en.wikipedia.org/wiki/Public_key_infrastructure) using CloudFlare's PKI toolkit, [cfssl](https://github.com/cloudflare/cfssl), then use it to bootstrap a Certificate Authority, and generate TLS certificates for the following components: etcd, kube-apiserver, kube-controller-manager, kube-scheduler, kubelet, and kube-proxy.
