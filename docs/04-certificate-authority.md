@@ -5,13 +5,13 @@ cfssl gencert -initca ca-csr.json | cfssljson -bare ca
 
 ca-key.pem, ca.pem
 
-## Generate the admin client certificate and private key 
+### Generate the admin client certificate and private key 
 cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -profile=kubernetes admin-csr.json | cfssljson -bare admin
 
 admin-key.pem, admin.pem
 
 
-## Generate a certificate and private key for each Kubernetes worker node
+### Generate a certificate and private key for each Kubernetes worker node
 
 First, note instance ids for worker nodes from EC2 console
 
@@ -39,7 +39,7 @@ This will generate files: worker-0-key.pem, worker-0.pem, worker-1-key.pem, work
 
 
 
-## Generate the kube-controller-manager client certificate and private key
+### Generate the kube-controller-manager client certificate and private key
 cfssl gencert \
   -ca=ca.pem \
   -ca-key=ca-key.pem \
@@ -49,7 +49,7 @@ cfssl gencert \
 
 kube-controller-manager-key.pem, kube-controller-manager.pem
 
-## Generate the kube-proxy client certificate and private key
+### Generate the kube-proxy client certificate and private key
 cfssl gencert \
   -ca=ca.pem \
   -ca-key=ca-key.pem \
@@ -59,7 +59,7 @@ cfssl gencert \
 
 kube-proxy-key.pem, kube-proxy.pem
 
-## Generate the kube-scheduler client certificate and private key
+### Generate the kube-scheduler client certificate and private key
 cfssl gencert \
   -ca=ca.pem \
   -ca-key=ca-key.pem \
@@ -69,7 +69,7 @@ cfssl gencert \
 
 kube-scheduler-key.pem, kube-scheduler.pem
 
-## Generate the Kubernetes API Server certificate and private key
+### Generate the Kubernetes API Server certificate and private key
 
 export KUBERNETES_PUBLIC_ADDRESS=<set the Elastic IP here>
 
@@ -86,7 +86,7 @@ cfssl gencert \
 kubernetes-key.pem, kubernetes.pem
 
 
-## Generate the service-account certificate and private key
+### Generate the service-account certificate and private key
 cfssl gencert \
   -ca=ca.pem \
   -ca-key=ca-key.pem \
