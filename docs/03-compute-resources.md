@@ -1,3 +1,16 @@
+# SD - AWS
+
+VPC - k8s 10.240.0.0/24  Subnet - k8s-eu-west-1a 10.240.0.64/26  
+
+Created 4 EC2 instances -> (Ubuntu 22.04LTS, t2.micro, 80GB) 
+	Named controller-0 controller-1 worker-0 worker-1 
+  
+Modify Security Group 
+	1. allows internal communication across all protocols tcp, udp, icmp
+	2. allows external SSH, ICMP, and HTTPS - tcp 22, tcp 6443, all icmp
+
+Created an Elastic IP 54.*.*.*
+
 # Provisioning Compute Resources
 
 Kubernetes requires a set of machines to host the Kubernetes control plane and the worker nodes where containers are ultimately run. In this lab you will provision the compute resources required for running a secure and highly available Kubernetes cluster across a single [compute zone](https://cloud.google.com/compute/docs/regions-zones/regions-zones).
