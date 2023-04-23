@@ -2,6 +2,7 @@
 
 ## SD - AWS
 
+Install AWS CLI on local WSL2 Ubuntu - https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
 Installed tmux
 
 ## Google Cloud Platform
